@@ -436,7 +436,7 @@ var skelSimul = Task({
 			inc = 1;
 		};
         coords = skelData[i][1..];
-        ~sendMessage.(\joint, [skelData[i][0], 1] ++ coords);
+        ~sendMessage.('/joint', [skelData[i][0], 1] ++ coords);
         i = i + inc;
         world.skelSimulSpeed.wait;
     }

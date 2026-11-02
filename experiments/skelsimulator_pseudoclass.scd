@@ -18,7 +18,7 @@
                 inf.do {
                     if (i == data.size) {i = 0};
                     coords = data[i][1..];
-                    ~sendMessage.(\joint, [data[i][0], 1] ++ coords);
+                    ~sendMessage.('/joint', [data[i][0], 1] ++ coords);
                     i = i + 1;
                     self.inertia.wait;
                 }

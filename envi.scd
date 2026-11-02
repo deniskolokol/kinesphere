@@ -515,7 +515,7 @@ try { // to load from settings file
         };
         0.5.wait;
         "INFO: removing objects".postln;
-        ~sendMessage.(\action, [\remove, \all]);
+        ~sendMessage.('/action', [\remove, \all]);
         0.5.wait;
         "INFO: removing modulators".postln;
         ~scsynth.listSendMsg(["/n_set", ~rootKr, \rel, 0.2, \gate, 0]);
