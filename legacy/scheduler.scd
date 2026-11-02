@@ -1,4 +1,4 @@
-// Sympli Romatikó
+// Kinesphere
 // module: Scheduler
 // ---------------
 (

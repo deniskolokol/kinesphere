@@ -3,7 +3,7 @@ var samplesDir;
 var dictObjSeq, msetObjSeq; // Markov chains creating sequences and obtaining objects' birthtime
 var scales, buf;
 
-~sequence[\title] = "Sympli Romatiko: poli 2017";
+~sequence[\title] = "Kinesphere: poli 2017";
 
 // INITIAL
 //

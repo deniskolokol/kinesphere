@@ -3,7 +3,7 @@ var samplesDir;
 var dictObjSeq, msetObjSeq; // Markov chains creating sequences and obtaining objects' birthtime
 var scales, buf;
 
-~sequence[\title] = "Sympli Romatiko: poli 2017";
+~sequence[\title] = "Kinesphere: poli 2017";
 
 // INITIAL
 //
@@ -977,7 +977,7 @@ scales.do { |c, i|
                 key = msetObjSeq.dict.keys.asArray.sort.wchoose([0.3, 0.6, 0.1]);
                 next = msetObjSeq.next(key);
                 next = (next + rand2(next * 0.25));
-                ~sendMessage.(\physics, params[i % params.size]);
+                ~sendMessage.('/physics', params[i % params.size]);
                 next.wait;
             };
             0.01.wait;

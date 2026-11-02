@@ -1,6 +1,4 @@
-
-
-// proj title: Sympli Romatiko
+// proj title: Kinesphere
 // redUniverse objects (2D) controlled by Kinect (via OSCeleton) in surround sound (VBAP of BeastMulch)
 //
 // calibration

@@ -2,7 +2,7 @@
 var samplesDir;
 var dictObjSeq, msetObjSeq; // Markov chains creating sequences and obtaining objects' birthtime
 
-~sequence[\title] = "Sympli Romatiko: kraut Traer World";
+~sequence[\title] = "Kinesphere: kraut Traer World";
 
 // INITIAL
 //
@@ -565,7 +565,7 @@ PathName.new(samplesDir +/+ "kraut_traer").entries.do { |f, i|
                 key = msetObjSeq.dict.keys.asArray.sort.wchoose([0.3, 0.6, 0.1]);
                 next = msetObjSeq.next(key);
                 next = (next + rand2(next * 0.25));
-                ~sendMessage.(\physics, particleParams[i % particleParams.size]);
+                ~sendMessage.('/physics', particleParams[i % particleParams.size]);
                 next.wait;
             };
             0.005.wait;

@@ -18,7 +18,7 @@
                 inf.do {
                     if (i == data.size) {i = 0};
                     coords = data[i][1..];
-                    ~sendMessage.(\joint, [data[i][0], 1] ++ coords);
+                    ~sendMessage.('/joint', [data[i][0], 1] ++ coords);
                     i = i + 1;
                     self.inertia.wait;
                 }
@@ -33,10 +33,10 @@
 };
 )
 
-m = ~skelSimulator.value("/Users/deko/Documents/dev_music/sympli_romatiko/experiments/joints.log");
+m = ~skelSimulator.value(PathName(thisProcess.nowExecutingPath).pathOnly +/+ "joints.log");
 
 m.run;
 m.inertia=3;
-m.proc.
+m.proc;
 m.halt;
 m.free;

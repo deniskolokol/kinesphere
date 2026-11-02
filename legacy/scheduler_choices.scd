@@ -44,16 +44,16 @@ dictObjSeq.keysValuesDo{|k, v| msetObjSeq[k] = v[1]};
 
 // fill buff with sample connected to guide object
 guideBuff = Buffer.readChannel(~scsynth,
-    PathName("/Users/deko/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/DRLATPOL.WAV").fullPath,
+    PathName("~/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/DRLATPOL.WAV").fullPath,
     channels: [0]);
 
 samples = List.new; // fill samples
 [
-    "/Users/deko/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/bboxbeay2.wav",
-    "/Users/deko/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/17boxloop.wav",
-    "/Users/deko/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/BBOX75.WAV",
-    "/Users/deko/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/BBOX90.WAV",
-    "/Users/deko/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/loop_clean.wav"
+    "~/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/bboxbeay2.wav",
+    "~/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/17boxloop.wav",
+    "~/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/BBOX75.WAV",
+    "~/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/BBOX90.WAV",
+    "~/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/loop_clean.wav"
 ].do { |f|
     samples.add(Buffer.readChannel(~scsynth, PathName(f).fullPath, channels: [0]));
 };

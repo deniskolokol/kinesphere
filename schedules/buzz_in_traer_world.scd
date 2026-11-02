@@ -229,10 +229,10 @@ currentScale = ~sequence.scales[3];
         ];
         loop {
             next = 20 + rand2(4);
-            ~sendMessage.(\physics, [\particles, 1]);
-            ~sendMessage.(\physics, particleParams[cnt % particleParams.size]);
+            ~sendMessage.('/physics', [\particles, 1]);
+            ~sendMessage.('/physics', particleParams[cnt % particleParams.size]);
             rrand(next * 0.25, next).wait;
-            ~sendMessage.(\physics, [\particles, 0]);
+            ~sendMessage.('/physics', [\particles, 0]);
             cnt = cnt + 1;
             next.wait;
         }
