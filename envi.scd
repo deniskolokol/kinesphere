@@ -73,11 +73,6 @@ var loadPaths = { |lines|
 };
 
 var isTest = thisProcess.argv.includesEqual("test");
-var currentDir = PathName(thisProcess.nowExecutingPath).pathOnly;
-var seqPathsFile = currentDir +/+ "conf/sequences.conf";
-
-var seqPaths = ["Load..."];
-var confFile = currentDir +/+ "conf/envi.conf";
 var emptySequence = {
     // Default empty sequence.
     (
@@ -116,14 +111,31 @@ var emptySequence = {
     )
 };
 
+// SERVER
+//
+Server.default = ~scsynth = Server.local;
+
+// Warning: in case of remote server, uncomment the following lines and set the
+// IP address of the remote machine:
+//
+// opts.maxLogins = 2;
+// scsynth = Server.remote(\remote, NetAddr("192.168.1.19", 57110), opts);
+
+// Directory and paths
+~currentDir = PathName(thisProcess.nowExecutingPath).pathOnly;
+~confFname = ~currentDir +/+ "conf/envi.conf";
+~seqPathsFname = ~currentDir +/+ "conf/sequences.conf";
+~seqPaths = ["Load..."];
+
+
 if (isTest) {
-    confFile = confFile.replace("envi.conf", "envi_test.conf");
+    ~confFname = ~confFname.replace("envi.conf", "envi_test.conf");
 };
 // ENVIRONMENT
 //
 "Loading environment...".postln;
 try { // to load from conf file
-    conf = File(confFile, "r").readAllString.interpret;
+    conf = File(~confFname, "r").readAllString.interpret;
     postf("OK\n\n");
 };
 
@@ -131,25 +143,14 @@ try { // to load from conf file
 //
 "Loading sequences...".postln;
 try { // to load from settings file
-    seqPaths = seqPaths ++ loadPaths.(
-        File(seqPathsFile, "r").readAllString
+    ~seqPaths = ~seqPaths ++ loadPaths.(
+        File(~seqPathsFname, "r").readAllString
     );
     postf("OK\n\n");
 } { |err|
-    postf("! Problem loading sequences, cannot access file %\n", seqPathsFile);
+    postf("! Problem loading sequences, cannot access file %\n", ~seqPathsFname);
 };
-seqPaths = seqPaths.asList;
-
-// In case of remote synth:
-//
-// opts.maxLogins = 2;
-// scsynth = Server.remote(\remote, NetAddr("192.168.1.19", 57110), opts);
-
-Server.default = ~scsynth = Server.local;
-
-// Directory and paths
-~currentDir = currentDir;
-~seqPaths = seqPaths;
+~seqPaths = ~seqPaths.asList;
 
 // assume the World is a cube
 ~worldSize = (Window.screenBounds.height*0.623).floor;
@@ -708,16 +709,16 @@ CmdPeriod.doOnce({
             }
         };
     };
-    confFile = File.new(confFile, "w");
-    confFile.write(conf.asCompileString);
-    confFile.close;
+    ~confFname = File.new(~confFname, "w");
+    ~confFname.write(conf.asCompileString);
+    ~confFname.close;
 
     // Save ~seqPaths to sequences file, omitting the first item ("Load...")
-    if (seqPaths.size > 1) {
+    if (~seqPaths.size > 1) {
         "INFO: Saving paths to sequences...".postln;
-        seqPathsFile = File.new(seqPathsFile, "w");
-        seqPathsFile.write(cleanPaths.(~seqPaths[1..]));
-        seqPathsFile.close;
+        ~seqPathsFname = File.new(~seqPathsFname, "w");
+        ~seqPathsFname.write(cleanPaths.(~seqPaths[1..]));
+        ~seqPathsFname.close;
     };
 
     postf("OK\n\n");

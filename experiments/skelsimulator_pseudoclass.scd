@@ -33,10 +33,10 @@
 };
 )
 
-m = ~skelSimulator.value("/Users/deko/Documents/dev_music/sympli_romatiko/experiments/joints.log");
+m = ~skelSimulator.value(PathName(thisProcess.nowExecutingPath).pathOnly +/+ "joints.log");
 
 m.run;
 m.inertia=3;
-m.proc.
+m.proc;
 m.halt;
 m.free;

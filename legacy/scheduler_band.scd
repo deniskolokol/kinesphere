@@ -41,39 +41,39 @@ dictObjSeq.keysValuesDo{|k, v| msetObjSeq[k] = v[1]};
 
 // fill buff with sample connected to guide object
 guideBuff = Buffer.readChannel(~scsynth,
-    PathName("~/Music/Sympli_Romatiko/samples/drumguide.wav").fullPath,
+    PathName("~/Data/Audio/samples/drum_loops/drumguide.wav").fullPath,
     channels: [0]);
 
 samples = List.new; // fill samples
 [
-    "~/Music/Sympli_Romatiko/samples/drumloop00.wav",
-    "~/Music/Sympli_Romatiko/samples/drumloop01.wav",
-    "~/Music/Sympli_Romatiko/samples/drumloop02.wav",
-    "~/Music/Sympli_Romatiko/samples/drumloop03.wav",
-    "~/Music/Sympli_Romatiko/samples/drumloop04.wav"
+    "~/Data/Audio/samples/drum_loops/drumloop00.wav",
+    "~/Data/Audio/samples/drum_loops/drumloop01.wav",
+    "~/Data/Audio/samples/drum_loops/drumloop02.wav",
+    "~/Data/Audio/samples/drum_loops/drumloop03.wav",
+    "~/Data/Audio/samples/drum_loops/drumloop04.wav"
 ].do { |f|
     samples.add(Buffer.readChannel(~scsynth, PathName(f).fullPath, channels: [0]));
 };
 
 voices = List.new; // fill samples
 [
-    "~/Music/Sympli_Romatiko/samples/marcin00.wav",
-    "~/Music/Sympli_Romatiko/samples/narration1.wav",
-    "~/Music/Sympli_Romatiko/samples/marcin00.wav",
-    "~/Music/Sympli_Romatiko/samples/narration3.wav",
-    "~/Music/Sympli_Romatiko/samples/marcin00.wav",
-    "~/Music/Sympli_Romatiko/samples/narration5.wav",
-    "~/Music/Sympli_Romatiko/samples/marcin00.wav",
-    "~/Music/Sympli_Romatiko/samples/narration7.wav",
-    "~/Music/Sympli_Romatiko/samples/marcin00.wav",
-    "~/Music/Sympli_Romatiko/samples/narration9.wav",
-    "~/Music/Sympli_Romatiko/samples/marcin00.wav",
-    "~/Music/Sympli_Romatiko/samples/narration11.wav",
-    "~/Music/Sympli_Romatiko/samples/marcin00.wav",
-    "~/Music/Sympli_Romatiko/samples/narration13.wav",
-    "~/Music/Sympli_Romatiko/samples/marcin00.wav",
-    "~/Music/Sympli_Romatiko/samples/narration15.wav",
-    "~/Music/Sympli_Romatiko/samples/marcin00.wav",
+    "~/Data/Audio/voices/marcin00.wav",
+    "~/Data/Audio/voices/narration1.wav",
+    "~/Data/Audio/voices/marcin00.wav",
+    "~/Data/Audio/voices/narration3.wav",
+    "~/Data/Audio/voices/marcin00.wav",
+    "~/Data/Audio/voices/narration5.wav",
+    "~/Data/Audio/voices/marcin00.wav",
+    "~/Data/Audio/voices/narration7.wav",
+    "~/Data/Audio/voices/marcin00.wav",
+    "~/Data/Audio/voices/narration9.wav",
+    "~/Data/Audio/voices/marcin00.wav",
+    "~/Data/Audio/voices/narration11.wav",
+    "~/Data/Audio/voices/marcin00.wav",
+    "~/Data/Audio/voices/narration13.wav",
+    "~/Data/Audio/voices/marcin00.wav",
+    "~/Data/Audio/voices/narration15.wav",
+    "~/Data/Audio/voices/marcin00.wav",
 ].do { |f|
     voices.add(Buffer.readChannel(~scsynth, PathName(f).fullPath, channels: [0]));
 };
@@ -111,80 +111,80 @@ thePiece = (
             message: \worldact, action: \remove, objects: \all
         )
     ],
-    // 1: [
-    //     (
-    //         info: "INTRO, no objects, only .kr buses",
-    //         message: \g_new,
-    //         id: \intro_bundle,
-    //         params: [ // Keywords \next_node_id & \group_id are to be substituted by real IDs.
-    //             ["/s_new", "sr__s__" ++ surround.toLower, \next_node_id, 1, \group_id, // add spatializer to new group's tail
-    //                 \inbus, 12, // getting signal from synth
-    //             \outbus, 0], // to main output
-    //             ["/s_new", \sr__e__humm, \next_node_id, 0, \group_id, // add synth to new group's head
-    //                 \outbus, 12, // feeding into spatilizer
-    //             \velocity, 0.5, \att, 30],
-    //             ["/s_new", \sr__k__lfnoise1, \next_node_id, 0, \group_id, \freq, 0.5, \mul, 1pi, \outbus, 0],
-    //             ["/n_map", \group_id, \azimuth, 0],
-    //             ["/s_new", \sr__k__stepnoise, \next_node_id, 0, \group_id, \freq, 0.08,
-    //                 \mul, (1 - 0.2) * 0.5, \add, 1 - ((1 - 0.2) * 0.5), // range 0.2..1
-    //             \outbus, 1],
-    //             ["/n_map", \group_id, \distance, 1],
-    //             ["/s_new", \sr__k__lfnoise1, \next_node_id, 0, \group_id, \freq, 0.1, \mul, 0.2, \add, 0.6, \outbus, 2],
-    //             ["/n_map", \group_id, \velocity, 2],
-    //             ["/s_new", \sr__k__sin, \next_node_id, 0, \group_id, \freq, 0.1, \mul, 0.4, \add, 0.6, \outbus, 3],
-    //             ["/n_map", \group_id, \az, 3]
-    //         ]
-    //     )
-    // ],
-    // 5: [
-    //     (
-    //         info: "INTRO: Particles",
-    //         message: \worldpar, params: [particles: 1, partGuide: "object"]
-    //     ),
-    //     (
-    //         message: \task, name: \randomParticles, act: 1
-    //     ),
-    // ],
-    // 10: [
-    //     (
-    //         info: "INTRO: objects",
-    //         message: \task, name: \intro, act: 1
-    //     )
-    // ],
-    // 11: [
-    //     (
-    //         info: "INTRO: voices",
-    //         message: \task, name: \voices, act: 1
-    //     ),
-    //     (
-    //         message: \worldpar, params: [audioIn: true]
-    //     )
-    // ],
-    // 20: [
-    //     (
-    //         info: "INTRO: __analog cutoff= -1",
-    //         message: \task, name: \sporadicAnalogCutoff, act: 1
-    //     ),
-    //     (
-    //         info: "Remove mutual attraction",
-    //         message: \worldpar, params: [objAttract: false]
-    //     ),
-    //     (
-    //         info: "Restore star mass",
-    //         message: \worldpar,
-    //         params: [starMass: 120]
-    //     ),
-    //
-    // ],
-    // 22: [
-    //     (
-    //         info: "INTRO: stop voices",
-    //         message: \task, name: \voices, act: 0
-    //     ),
-    //     (
-    //         message: \worldpar, params: [audioIn: true]
-    //     )
-    // ],
+    1: [
+        (
+            info: "INTRO, no objects, only .kr buses",
+            message: \g_new,
+            id: \intro_bundle,
+            params: [ // Keywords \next_node_id & \group_id are to be substituted by real IDs.
+                ["/s_new", "sr__s__" ++ surround.toLower, \next_node_id, 1, \group_id, // add spatializer to new group's tail
+                    \inbus, 12, // getting signal from synth
+                \outbus, 0], // to main output
+                ["/s_new", \sr__e__humm, \next_node_id, 0, \group_id, // add synth to new group's head
+                    \outbus, 12, // feeding into spatilizer
+                \velocity, 0.5, \att, 30],
+                ["/s_new", \sr__k__lfnoise1, \next_node_id, 0, \group_id, \freq, 0.5, \mul, 1pi, \outbus, 0],
+                ["/n_map", \group_id, \azimuth, 0],
+                ["/s_new", \sr__k__stepnoise, \next_node_id, 0, \group_id, \freq, 0.08,
+                    \mul, (1 - 0.2) * 0.5, \add, 1 - ((1 - 0.2) * 0.5), // range 0.2..1
+                \outbus, 1],
+                ["/n_map", \group_id, \distance, 1],
+                ["/s_new", \sr__k__lfnoise1, \next_node_id, 0, \group_id, \freq, 0.1, \mul, 0.2, \add, 0.6, \outbus, 2],
+                ["/n_map", \group_id, \velocity, 2],
+                ["/s_new", \sr__k__sin, \next_node_id, 0, \group_id, \freq, 0.1, \mul, 0.4, \add, 0.6, \outbus, 3],
+                ["/n_map", \group_id, \az, 3]
+            ]
+        )
+    ],
+    5: [
+        (
+            info: "INTRO: Particles",
+            message: \worldpar, params: [particles: 1, partGuide: "object"]
+        ),
+        (
+            message: \task, name: \randomParticles, act: 1
+        ),
+    ],
+    10: [
+        (
+            info: "INTRO: objects",
+            message: \task, name: \intro, act: 1
+        )
+    ],
+    11: [
+        (
+            info: "INTRO: voices",
+            message: \task, name: \voices, act: 1
+        ),
+        (
+            message: \worldpar, params: [audioIn: true]
+        )
+    ],
+    20: [
+        (
+            info: "INTRO: __analog cutoff= -1",
+            message: \task, name: \sporadicAnalogCutoff, act: 1
+        ),
+        (
+            info: "Remove mutual attraction",
+            message: \worldpar, params: [objAttract: false]
+        ),
+        (
+            info: "Restore star mass",
+            message: \worldpar,
+            params: [starMass: 120]
+        ),
+    
+    ],
+    22: [
+        (
+            info: "INTRO: stop voices",
+            message: \task, name: \voices, act: 0
+        ),
+        (
+            message: \worldpar, params: [audioIn: true]
+        )
+    ],
     30: [
         ( // Remove all objects.
             info: "SCI-FI",
