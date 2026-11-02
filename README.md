@@ -1,6 +1,6 @@
-# Sympli Romatikó
+# Kinesphere
 
-Simple solid physics in 3D controlled by Kinect in surround sound.
+Simple solid physics in 3D controlled by gestures in surround sound.
 
 ## Install packages
 * Install **Sensebloom OSCeleton** https://github.com/Sensebloom/OSCeleton

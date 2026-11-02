@@ -1,4 +1,4 @@
-// Sympli Romatikó
+// Kinesphere
 // module: Environment
 // -------------------
 // connecting together World, Scheduler and SynthDefs

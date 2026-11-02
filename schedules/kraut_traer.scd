@@ -2,7 +2,7 @@
 var samplesDir;
 var dictObjSeq, msetObjSeq; // Markov chains creating sequences and obtaining objects' birthtime
 
-~sequence[\title] = "Sympli Romatiko: kraut Traer World";
+~sequence[\title] = "Kinesphere: kraut Traer World";
 
 // INITIAL
 //

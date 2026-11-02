@@ -2,7 +2,7 @@
 var monitor, message, spacer = "\n--------------------\n";
 var textParticles, textAttractions, textForces, textSprings, textSkeleton, textTest;
 
-var winMonitor = Window("Sympli Romatikó :: MONITOR", Rect(705, 1000, 360, Window.screenBounds.height));
+var winMonitor = Window("Kinesphere :: MONITOR", Rect(705, 1000, 360, Window.screenBounds.height));
 var drawMonitorView = { |parent, width=350, height=130|
     var uv = UserView(winMonitor, width@height);
     uv.background = Color.new255(0, 0, 0, alpha:180);

@@ -3,7 +3,7 @@ var samplesDir;
 var dictObjSeq, msetObjSeq; // Markov chains creating sequences and obtaining objects' birthtime
 
 //GLOBAL
-~sequence[\title] = "Sympli Romatiko: band in Traer World";
+~sequence[\title] = "Kinesphere: band in Traer World";
 
 // INITIAL
 //

@@ -1,4 +1,4 @@
-// Sympli Ro̱matiko
+// Kinesphere
 // redUniverse objects (3D) controlled by Kinect (via OSCeleton) in surround sound (Josh Parmenter's ambisonics)
 //
 // calibration
