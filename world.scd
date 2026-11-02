@@ -2,8 +2,7 @@
 // module: World
 // ---------------
 (
-//var physics;
-var skel, springs, particles, particle, star;
+var skel, physics, springs, particles, particle, star;
 var world, center, canvas, frame, item, color;
 var miscParams, event, updateWorldParm;
 var oscParticle, oscPhysics, oscAction,
@@ -37,12 +36,11 @@ var win, viewTop, viewSeqList, viewTopCenter, viewSeqTime,
     sText, dropdown, listView, slider, knob, button, buttonCheckbox,
     scrollInfo;
 var winSrv, palette, meterView;
-var postView, postMaxSize=1500;
 var scale, translate, focal;
 var paramsChanged;
 var cleanExit;
 var fileNames;
-var postMsg, updatePostColors, getMsgColor, postColors=List.new;
+var postView, postMsg, postColors=List.new;
 var eventInfo, switchEvent, processEvents, getKey;
 var groupNew, groupRemove, sendSNew, sendNSet, taskPlay;
 var animateSeq, shade, current, next, count=0, blinked=0, tick=0;
@@ -50,12 +48,12 @@ var ddSequence, btCurrNum, stCurrInfo, btNextNum, stNextInfo, timeLabel;
 var updateGui, updateGuiElement;
 var transparent=Color.grey(alpha:0.01),
     techColor=Color.green(0.5),
-    font=Font("Monaco", 14),
-    fontSmall=Font("Monaco", 10),
-    fontMedium=Font("Monaco", 12),
-    fontLarge=Font("Monaco", 14),
-    fontLarge1=Font("Monaco", 18),
-    fontGiant=Font("Monaco", 24),
+    font=Font("Nimbus Mono PS", 14),
+    fontSmall=Font("Nimbus Mono PS", 10),
+    fontMedium=Font("Nimbus Mono PS", 12),
+    fontLarge=Font("Nimbus Mono PS", 14),
+    fontLarge1=Font("Nimbus Mono PS", 18),
+    fontGiant=Font("Nimbus Mono PS", 24),
     fontColor=Color.gray(0.7),
     colorStar=Color.red,
     colorJoint=Color.new255(173, 58, 0),
@@ -122,35 +120,35 @@ var randomize = { |n, dev, factor=0.25|
 var visCount=0;
 var paths = [
     [
-        [\head, \neck],
+        [\l_ear, \head, \r_ear],
         [\l_hand, \l_elbow, \l_shoulder, \l_hip, \l_knee, \l_foot],
         [\r_hand, \r_elbow, \r_shoulder, \r_hip, \r_knee, \r_foot],
         [\r_shoulder, \l_shoulder],
         [\r_hip, \l_hip],
     ],
     [
-        [\head, \neck, \torso],
-        [\l_hand, \l_elbow, \l_shoulder, \neck, \r_shoulder, \r_elbow, \r_hand],
-        [\l_shoulder, \torso, \r_shoulder],
-        [\l_foot, \l_knee, \l_hip, \torso, \r_hip, \r_knee, \r_foot]
+        [\l_ear, \head, \r_ear],
+        [\l_hand, \l_elbow, \l_shoulder, \r_shoulder, \r_elbow, \r_hand],
+        [\l_shoulder, \l_hip, \r_hip, \r_shoulder],
+        [\l_foot, \l_knee, \l_hip, \r_hip, \r_knee, \r_foot]
     ],
     [
-        [\head, \neck, \torso],
+        [\l_ear, \head, \r_ear],
         [\l_hand, \l_elbow, \l_shoulder, \r_hip, \r_knee, \r_foot],
         [\r_hand, \r_elbow, \r_shoulder, \l_hip, \l_knee, \l_foot],
     ],
     [
-        [\head, \neck, \torso],
+        [\l_ear, \head, \r_ear],
         [\l_hand, \l_elbow, \l_shoulder, \l_hip, \l_knee, \l_foot],
         [\r_hand, \r_elbow, \r_shoulder, \r_hip, \r_knee, \r_foot],
     ],
     [
-        [\head, \neck, \torso],
+        [\l_ear, \head, \r_ear],
         [\l_hand, \l_elbow, \l_shoulder, \r_shoulder, \r_elbow, \r_hand],
         [\l_foot, \l_knee, \l_hip, \r_hip, \r_knee, \r_foot],
     ],
     [
-        [\head, \neck, \torso],
+        [\l_ear, \head, \r_ear],
         [\l_hand, \l_elbow, \l_shoulder, \l_hip, \l_knee, \l_foot],
         [\r_hand, \r_elbow, \r_shoulder, \r_hip, \r_knee, \r_foot],
         [\l_hand, \r_hand],
@@ -212,21 +210,21 @@ var worldParams = (
         minval: -2.1,
         maxval: 2.0,
         default: 0,
-        midicc: 27,
+        // midicc: 27,
     ),
     gravY: (
         label: "grav Y",
         minval: -2.1,
         maxval: 2.0,
         default: 0,
-        midicc: 28,
+        // midicc: 28,
     ),
     gravZ: (
         label: "grav Z",
         minval: -2.1,
         maxval: 2.0,
         default: 0,
-        midicc: 29,
+        // midicc: 29,
     ),
     // springs
     springRestLen: (
@@ -299,15 +297,79 @@ var worldParams = (
         label: "part synth",
         default: "pulse",
     ),
-    // misc
+	// skelSimul
+    mX: (
+        label: "skel mX",
+        minval: 0.1,
+        maxval: 2.0,
+        default: 1,
+        midicc: 34,
+    ),
+    mY: (
+        label: "skel mY",
+        minval: 0.1,
+        maxval: 2.0,
+        default: 1,
+        midicc: 35,
+    ),
+    mZ: (
+        label: "skel mZ",
+        minval: 0.1,
+        maxval: 2.0,
+        default: 1,
+        midicc: 36,
+    ),
+    oX: (
+        label: "skel oX",
+        minval: -1.0,
+        maxval: 1.0,
+        default: 0.0,
+        midicc: 31,
+    ),
+    oY: (
+        label: "skel oY",
+        minval: -1.0,
+        maxval: 1.0,
+        default: 0.0,
+        midicc: 32,
+    ),
+    oZ: (
+        label: "skel oZ",
+        minval: -1.0,
+        maxval: 1.0,
+        default: 0.0,
+        midicc: 33,
+    ),
     skelSimulSpeed: (
         label: "simul vel",
         minval: 0.001,
-        maxval: 0.005,
+        maxval: 0.05,
         default: 0.002,
-        midicc: 34,
+		warp: \exp,
+        midicc: 20,
         hint: "speed of skeleton simulation",
     ),
+    skelSimul: (
+        label: "skel",
+        default: false,
+        midinote: 69,
+    ),
+    skelPause: (
+        label: "||",
+        default: false,
+        midinote: 59,
+    ),
+    skelRev: (
+        label: "<< ",
+        default: false,
+        midinote: 56,
+    ),
+    skelForw: (
+        label: ">>",
+        default: true,
+        midinote: 57,
+    ),
+    // misc
     mutualAttraction: (
         label: "mutual",
         default: true,
@@ -323,6 +385,16 @@ var worldParams = (
         default: \calibration,
         hint: "drawing mode description",
     ),
+	tick: (
+        label: "tick",
+        minval: 0.001,
+        maxval: 2.0,
+        default: 1,
+		warp: \lin,
+		// midicc: 20, // ?
+        hint: "physics simulation speed",
+    ),
+
 );
 
 var reshape = { |src|
@@ -353,13 +425,19 @@ var loadSkelData = {
     skelData = File(~currentDir +/+ "experiments/joints.log", "r").readAllString.interpret;
 };
 var skelSimul = Task({
-    var i=0, coords;
+    var i=0, inc=1, coords;
     inf.do {
         // process
-        if (i == skelData.size) {i = 0};
+		if (world.skelRev) {
+			if (i == -1) {i = skelData.size-1};
+			inc = -1;
+		} {
+			if (i == skelData.size) {i = 0};
+			inc = 1;
+		};
         coords = skelData[i][1..];
         ~sendMessage.(\joint, [skelData[i][0], 1] ++ coords);
-        i = i + 1;
+        i = i + inc;
         world.skelSimulSpeed.wait;
     }
 });
@@ -370,10 +448,11 @@ world = (width: ~worldSize, height: ~worldSize, depth: ~worldSize);
 worldParams.keysValuesDo { |k, v| world[k] = v[\default]};
 
 // skeletons
-skel = (waitBeforeRemove: 5, limit: 1);
+~skel = (waitBeforeRemove: 5, limit: 1);
+skel = ~skel;
 skeleton = Dictionary.new;
 jointVisible = [ // visualize only these joints
-    \l_hand, \l_elbow, \l_shoulder, \neck, \head, \neck, \r_shoulder, \r_elbow, \r_hand
+    \l_hand, \l_elbow, \l_shoulder, \head, \r_shoulder, \r_elbow, \r_hand
 ];
 springSrcSkel = #[\r_hand, \l_hand]; // joints that springs can be attached to
 listenerPos = ( // as default - center of the world
@@ -612,6 +691,7 @@ processEvents = { |num|
             \n_set, { sendNSet.(data) },
             \g_new, { groupNew.(data) },
             \g_free, { groupRemove.(data) },
+            \func, { data[\run].value },
             { ~sendMessage.(data[\message], data[\params]) }
         )
     }
@@ -737,6 +817,7 @@ winSrv = Window.new(
     Rect(0, Window.screenBounds.height-200, 590, 660),
     resizable: false, border: false
 );
+
 winSrv.view.decorator = FlowLayout(winSrv.view.bounds, 1@1, 1@1);
 palette = QPalette.dark;
 palette.setColor(Color.black, \window);
@@ -750,8 +831,8 @@ meterView = EntroServerMeterView(~scsynth, panel, 0@0, 210);
 // GUI: sequence panel
 panelSrvRight = compViewFlow.(winSrv, scaleW:0.43);
 viewSeqList = compViewFlow.(panelSrvRight, scaleH:0.1, scaleW:0.65);
-viewSeqTime = compViewFlow.(panelSrvRight, margin:5@5, gap:5@5, scaleH:0.1, scaleW:0.35);
-viewSeqEvents = compViewFlow.(panelSrvRight, gap:8@4, scaleH:0.86);
+viewSeqTime = compViewFlow.(panelSrvRight, scaleH:0.1, scaleW:0.35); // margin:5@5, gap:5@5
+viewSeqEvents = compViewFlow.(panelSrvRight, scaleH:0.86); // gap:8@4
 // time elapsed since the start
 timeLabel = sText.(viewSeqTime, ~convertTime.(0), stringFont:fontLarge1, scaleW:1, scaleH:0.7);
 timeLabel.align = \center;
@@ -791,7 +872,7 @@ miscParams[\next] = (
 ddSequence = dropdown.(
     viewSeqList,
     items: fileNames.(~seqPaths),
-    initVal: if (~seqPaths.size > 0) { 1 } { 0 },
+    initVal: if (~seqPaths.size > 1) { 1 } { 0 },
     action: { |element|
         var val, path;
         animateSeq = false;
@@ -822,7 +903,7 @@ ddSequence = dropdown.(
         current = -1;
         scrollInfo.(current, 0);
     },
-    initAction: true
+    initAction: ~seqPaths.size > 1
 );
 button.(viewSeqList,
     "stop", bgColor:Color.grey(0.2), scaleW:0.41, scaleH:0.55
@@ -894,13 +975,70 @@ panel = compViewFlow.(panelSrvLeft, scaleH:0.56);
 [
     \drag, \repulsion, \starMass,
     \gravX, \gravY, \gravZ,
-    \springRestLen, \springStrength, \springDamp,
-    \maxVel, \partInitAccel, \partFreq,
-    \partDefaultMass, \partAgeThresh, \skelSimulSpeed
+
+	\mX, \mY, \mZ,
+	\oX, \oY, \oZ,
+	// XXX - do we need those?
+	//
+	// \springRestLen, \springStrength, \springDamp,
+	// \maxVel, \partInitAccel, \partFreq,
+	// \partDefaultMass, \partAgeThresh,
+	\skelSimulSpeed, \tick
 ].do { |key, n|
     worldParams[key][\gui] = slider.(panel, key, worldParams[key]);
     if ((n+1) % 3 == 0) { compViewFlow.(panel, scaleH:0.04)} // gap after every 3rd slider
 };
+sText.(panel, " ", stringFont:fontSmall, scaleH:0.02, scaleW: 0.8); // gap
+worldParams.skelSimul[\gui] = buttonCheckbox.(panel,
+	worldParams.skelSimul[\label], bgColor:Color.black, scaleW:0.25, scaleH:0.1
+)
+.value_(worldParams.skelSimul[\default])
+.action_({ |bt|
+	if (bt.value.booleanValue) {
+		if (skelData.isNil) {loadSkelData.()};
+		skelSimul.start
+	} {
+		skelSimul.stop
+	}
+});
+
+// Skeleton simulation direction (forward or reverse) could
+// be realized with only one control (Rev={true, false}), but
+// two are used here for natural interaction with GUI and MIDI.
+[\skelRev, \skelForw].do { |param|
+	worldParams[param][\gui] = buttonCheckbox.(
+		panel,
+		worldParams[param][\label],
+		bgColor:Color.black, scaleW:0.15, scaleH:0.1
+	)
+	.value_(world[param]);
+};
+worldParams[\skelRev][\gui].action_({ |bt|
+	world.skelRev = bt.value.booleanValue;
+	world.skelForw = bt.value.booleanValue.not;
+	worldParams[\skelForw][\gui].value = bt.value.booleanValue.not;
+});
+worldParams[\skelForw][\gui].action_({ |bt|
+	world.skelForw = bt.value.booleanValue;
+	world.skelRev = bt.value.booleanValue.not;
+	worldParams[\skelRev][\gui].value = bt.value.booleanValue.not;
+});
+
+// To keep simulated skeleton in the world, fake the pause: do not
+// pause task, but increase waiting time instead.
+worldParams.skelPause[\gui] = buttonCheckbox.(panel,
+	worldParams.skelPause[\label], bgColor:Color.black, scaleW:0.25, scaleH:0.1
+)
+.value_(worldParams.skelPause[\default])
+.action_({ |bt|
+	if (bt.value.booleanValue) {
+		// save current waiting time for later
+		worldParams.skelSimulSpeed[\default] = world.skelSimulSpeed;
+		world.skelSimulSpeed = 2
+	} {
+		world.skelSimulSpeed = worldParams.skelSimulSpeed[\default];
+	}
+});
 
 // slider controllers for misc params
 panel = compViewFlow.(panelSrvLeft, scaleH:0.1);
@@ -913,7 +1051,7 @@ miscParams[\serverVolume] = (
 );
 tmp = [0.5, 30.0, \lin, 0.1, ~speakers.maxDist].asSpec;
 miscParams[\maxDist] = (
-    midicc: 14,
+    // midicc: 14, // XXX
     spec: tmp,
     gui: slider.(panel, "maxDist", (
         label: "max dist", minval: tmp.minval, maxval: tmp.maxval,
@@ -941,7 +1079,7 @@ panel = compViewFlow.(panelSrvLeft, margin:5@5, gap:5@5, scaleH:0.1);
 miscParams[\removeall] = (
     midinote: 70,
     gui: button.(panel,
-        "X", bgColor:Color.black, scaleW:0.19, scaleH:0.7
+        "X", bgColor:Color.black, scaleW:0.1, scaleH:0.7
     ).action_({ |bt| removeAll.() })
 );
 // reset physics params to defaults
@@ -954,18 +1092,6 @@ miscParams[\reset] = (
             if (element.keys.includes(\midicc) && element[\gui].isNil.not) {
                 element[\gui].valueAction_(element[\default])
             }
-        }
-    })
-);
-miscParams[\skelsimul] = (
-    gui: buttonCheckbox.(panel,
-        "skel", bgColor:Color.black, scaleW:0.19, scaleH:0.7
-    ).action_({ |bt|
-        if (bt.value.booleanValue) {
-            if (skelData.isNil) {loadSkelData.()};
-            skelSimul.start
-        } {
-            skelSimul.stop
         }
     })
 );
@@ -2094,7 +2220,7 @@ viewWorld.drawFunc = { |view|
         { drawCalibration.(view, kwargs: kwargs) }
     );
 
-    physics.tick;
+	physics.tick(worldParams[\tick][\gui].value);
 };
 
 
@@ -2610,40 +2736,37 @@ xyz = { |position|
 };
 
 
-// Updates post colors when postView size shrinks.
-updatePostColors = { |colors, start|
-    colors.size.do { |i|
-        colors[i][\start] = colors[i][\start] - start
-    };
-    all {: k, k <-colors, k[\start] > 0 };
-};
-
-
-//
-getMsgColor = { |msg|
-    case
-    { msg.beginsWith("INFO") || msg.beginsWith("->") } { Color.new255(11, 96, 224) }
-    { msg.beginsWith("DEBUG") || msg.beginsWith("$>") } { Color.new255(55, 157, 0) }
-    { msg.beginsWith("WARNING") } { Color.white }
-    { msg.beginsWith("ERROR") } { Color.new255(158, 33, 33) }
-    { fontColor };
-};
-
-
 // Posts message to local listener.
 postMsg = { |msg|
-    var msgColor, start, color;
+    var start, color, line, logMaxSize=500;
+    // Updates post colors when postView size shrinks.
+    var updatePostColors = { |colors, start|
+        colors.size.do { |i|
+            colors[i][\start] = colors[i][\start] - start
+        };
+        all {: k, k <-colors, k[\start] > 0 };
+    };
+
     msg = msg.asString;
+    line = msg.split($\n)[0];
     if (msg.endsWith("\n").not) { msg = msg ++ "\n" };
-    msgColor = getMsgColor.(msg);
+
+    color = case
+    { line.beginsWith("INFO") || line.beginsWith("->") } { Color.new255(11, 96, 224) }
+    { line.beginsWith("DEBUG") || line.beginsWith("$>") } { Color.new255(55, 157, 0) }
+    { line.beginsWith("WARNING") } { Color.white }
+    { line.beginsWith("ERROR") } { Color.new255(158, 33, 33) }
+    { fontColor };
+
     {
         // do not grow too long
-        if (postView.string.size > postMaxSize) {
-            start = postView.string.size - postMaxSize;
+        if (postView.string.size > logMaxSize) {
+            start = postView.string.size - logMaxSize;
             postView.string = postView.string[start..];
             postColors = updatePostColors.(postColors, start);
         };
-        postColors.add((start: postView.string.size, num: msg.size, color: msgColor));
+        postColors.add((start: postView.string.size, num: line.size, color: color));
+        postColors.add((start: postView.string.size+line.size, num: msg.size-line.size, color: fontColor));
         postView.string = postView.string ++ msg;
         postColors.do { |c|
             postView.setStringColor(c[\color], c[\start], c[\num]);
@@ -2651,7 +2774,6 @@ postMsg = { |msg|
         postView.select(postView.string.size, 1); // autoscroll
     }.defer;
 };
-
 
 //
 reportOSC = { |msg, time, addr, recvPort|
@@ -2800,25 +2922,24 @@ oscSkeletonNew = OSCFunc({ |msg, time, addr, recvPort|
 }, '/new_skel');
 
 oscSkeletonJoint = OSCFunc({ |msg, time, addr, recvPort|
-    var id, joint, x, y, z;
-    // postf("from % received %\n", addr, msg);
-    id = msg[2].asInteger;
-    joint = msg[1];
+	// postf("from % received %\n", addr, msg);
 
-    // // XXX front view
-    // #x, y, z = [
-    //     msg[3].linlin(0.0, 1.0, 0, world.width),
-    //     msg[4].linlin(0.0, 1.0, 0, world.height),
-    //     msg[5].linlin(0.65, 2.8, 0, world.depth)
-    // ];
+	// // XXX front view
+	// #x, y, z = [
+	// 	msg[3].linlin(0.0, 1.0, 0, world.width),
+	// 	msg[4].linlin(0.0, 1.0, 0, world.height),
+	// 	msg[5].linlin(0.65, 2.8, 0, world.depth)
+	// ];
 
-    // XXX top view
-    #x, y, z = [
-        msg[3].linlin(0.0, 1.0, 0, world.width),
-        msg[5].linlin(0.65, 2.8, 0, world.height),
-        msg[4].linlin(0.0, 1.0, 0, world.depth)
-    ];
-    skeletonParticles.(id, joint, x, y, z);
+	// XXX top view
+	// x:msg[3].linlin(0.0, 1.0, 0, world.width),
+    skeletonParticles.(
+		id:msg[2].asInteger,
+		joint:msg[1],
+		x:msg[3].linlin(0.0, 1.0, 0, world.width),
+		y:msg[5].linlin(-1.0, 1.0, 0, world.height),
+		z:msg[4].linlin(0.0, 1.0, 0, world.depth)
+	);
 }, '/joint');
 
 oscGroupTree = OSCFunc({ |msg, time, addr, recvPort|
@@ -2847,14 +2968,19 @@ oscGroupTree = OSCFunc({ |msg, time, addr, recvPort|
 
 // PHYSICS
 //
-physics = TraerParticleSystem.new;
-particles = IdentityDictionary.new;
-springs = IdentityDictionary.new;
+// Environment variables anbd their local counterparts.
+~physics = TraerParticleSystem.new;
+~particles = IdentityDictionary.new;
+~springs = IdentityDictionary.new;
+physics = ~physics;
+particles = ~particles;
+springs = ~springs;
 
 // Star is in the center.
 star = initParticle.((
     mass: world.starMass, x: world.width/2, y: world.height/2, z: world.depth/2
 ));
+~star = star;
 applyAttractions.(star, world.mutualAttraction);
 
 // Animate!
