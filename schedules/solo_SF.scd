@@ -18,17 +18,17 @@ var parmDir = Dictionary.new;
 
 // WARNING! Specific for the current piece!
 // Read left channel only to feed to TGrains!
-var drumLoop1 = Buffer.readChannel(s, "~/Music/Sympli_Romatiko/solo/Audio/bbcloop_comp.wav", channels: [0]);
+var drumLoop1 = Buffer.readChannel(s, "/Users/deko/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/bbcloop_comp.wav", channels: [0]);
 var introBuff = Buffer.readChannel(s,
-    "~/Music/Sympli_Romatiko/solo/Audio/DRLATPOL.WAV",
+    "/Users/deko/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/DRLATPOL.WAV",
     channels: [0]);
 var buffList = List.new;
 [ // Fill buffList.
-    "~/Music/Sympli_Romatiko/solo/Audio/bboxbeay2.wav",
-    "~/Music/Sympli_Romatiko/solo/Audio/17boxloop.wav",
-    "~/Music/Sympli_Romatiko/solo/Audio/BBOX75.WAV",
-    "~/Music/Sympli_Romatiko/solo/Audio/BBOX90.WAV",
-    "~/Music/Sympli_Romatiko/solo/Audio/loop_clean.wav"
+    "/Users/deko/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/bboxbeay2.wav",
+    "/Users/deko/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/17boxloop.wav",
+    "/Users/deko/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/BBOX75.WAV",
+    "/Users/deko/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/BBOX90.WAV",
+    "/Users/deko/Documents/Projects/Music/Sympli_Romatiko/solo/Audio/loop_clean.wav"
 ].do { |filename|
     buffList.add(Buffer.readChannel(s, filename, channels: [0]));
 };

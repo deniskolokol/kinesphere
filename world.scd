@@ -872,7 +872,7 @@ miscParams[\next] = (
 ddSequence = dropdown.(
     viewSeqList,
     items: fileNames.(~seqPaths),
-    initVal: if (~seqPaths.size > 0) { 1 } { 0 },
+    initVal: if (~seqPaths.size > 1) { 1 } { 0 },
     action: { |element|
         var val, path;
         animateSeq = false;
@@ -903,7 +903,7 @@ ddSequence = dropdown.(
         current = -1;
         scrollInfo.(current, 0);
     },
-    initAction: true
+    initAction: ~seqPaths.size > 1
 );
 button.(viewSeqList,
     "stop", bgColor:Color.grey(0.2), scaleW:0.41, scaleH:0.55
