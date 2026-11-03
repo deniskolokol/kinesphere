@@ -436,6 +436,7 @@ var skelSimul = Task({
 			inc = 1;
 		};
         coords = skelData[i][1..];
+        coords[1] = 1 - coords[1]; // invert y-axis
         ~sendMessage.('/joint', [skelData[i][0], 1] ++ coords);
         i = i + inc;
         world.skelSimulSpeed.wait;
@@ -1919,16 +1920,20 @@ drawSkel = { |view|
 
     // draw skeletons
     skeleton.values.do { |skel|
-        // WARNING! Technically this is a wrong approach,
-        // since it will draw particles two times.
-        // but it doesn't matter, because only one skel is used.
-        if (skel[\head].position.y > star.position.y) {
-            drawSkelParticle.();
-            drawSkelJoints.(skel, currPath);
-        } {
-            drawSkelJoints.(skel, currPath);
-            drawSkelParticle.();
-        };
+
+        drawSkelJoints.(skel, currPath);
+        drawSkelParticle.();
+
+        // // WARNING! Technically this is a wrong approach,
+        // // since it will draw particles two times.
+        // // but it doesn't matter, because only one skel is used.
+        // if (skel[\head].position.y > star.position.y) {
+        //     drawSkelParticle.();
+        //     drawSkelJoints.(skel, currPath);
+        // } {
+        //     drawSkelJoints.(skel, currPath);
+        //     drawSkelParticle.();
+        // };
     };
     // draw grid
     Pen.strokeColor = Color.grey(0.3);
@@ -1961,13 +1966,13 @@ drawSkel = { |view|
 // A frame of movement of a skeleton in the drawSkel mode.
 drawSkelJoints = { |skel, currPath|
     currPath.do { |path|
-        path.do { |jo, j|
+        path.do { |joint, j|
             if (j < (path.size-1)) {
                 lineColor = Color.grey(
-                    skel[jo].position.y.linlin(0, world.depth, 1, 0)
+                    skel[joint].position.y.linlin(0, world.depth, 1, 0)
                 );
-                deviation = skel[jo].position.y.lincurve(0, world.depth, 1, 20, -4);
-                xyA = getPointPlane.(skel[jo]);
+                deviation = skel[joint].position.y.lincurve(0, world.depth, 1, 20, -4);
+                xyA = getPointPlane.(skel[joint]);
                 xyB = getPointPlane.(skel[path[j+1]]);
                 drawLine.(
                     pointA:(x:xyA[0], y:xyA[1]),
@@ -1986,7 +1991,7 @@ drawSkelJoints = { |skel, currPath|
                     );
                     drawLine.(xyDevA, xyDevB, lineColor);
                     // additional lines for the head
-                    if (jo == \head) {
+                    if (joint == \head) {
                         xyDevA = (
                             x: randomize.(xyA[0]-gridUnit, deviation),
                             y: randomize.(xyA[1]+gridUnit, deviation)
@@ -2922,24 +2927,22 @@ oscSkeletonNew = OSCFunc({ |msg, time, addr, recvPort|
 }, '/new_skel');
 
 oscSkeletonJoint = OSCFunc({ |msg, time, addr, recvPort|
-	// postf("from % received %\n", addr, msg);
+    var x, y, z;
+	// front view
+    // #x, y, z = [
+    //     msg[3].linlin(0.0, 1.0, 0, world.width),
+    //     msg[5].linlin(-1.0, 1.0, 0, world.height),
+    //     msg[4].linlin(0.0, 1.0, 0, world.depth)
+    // ];
 
-	// // XXX front view
-	// #x, y, z = [
-	// 	msg[3].linlin(0.0, 1.0, 0, world.width),
-	// 	msg[4].linlin(0.0, 1.0, 0, world.height),
-	// 	msg[5].linlin(0.65, 2.8, 0, world.depth)
-	// ];
+	// top view
+	#x, y, z = [
+		msg[3].linlin(0.0, 1.0, 0, world.width),
+		msg[4].linlin(0.0, 1.0, 0, world.height),
+		msg[5].linlin(0.65, 2.8, 0, world.depth)
+	];
 
-	// XXX top view
-	// x:msg[3].linlin(0.0, 1.0, 0, world.width),
-    skeletonParticles.(
-		id:msg[2].asInteger,
-		joint:msg[1],
-		x:msg[3].linlin(0.0, 1.0, 0, world.width),
-		y:msg[5].linlin(-1.0, 1.0, 0, world.height),
-		z:msg[4].linlin(0.0, 1.0, 0, world.depth)
-	);
+    skeletonParticles.(id: msg[2].asInteger, joint: msg[1], x: x, y: y, z: z);
 }, '/joint');
 
 oscGroupTree = OSCFunc({ |msg, time, addr, recvPort|

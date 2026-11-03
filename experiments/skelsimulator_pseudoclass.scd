@@ -15,9 +15,12 @@
         proc: { |self|
             Task({
                 var i=0, coords;
+                ~sendMessage.('/joint', [data[i][0], 1] ++ coords);
                 inf.do {
                     if (i == data.size) {i = 0};
                     coords = data[i][1..];
+
+                    // 1 is the skeleton index (in the case of simulation is a constant)
                     ~sendMessage.('/joint', [data[i][0], 1] ++ coords);
                     i = i + 1;
                     self.inertia.wait;
