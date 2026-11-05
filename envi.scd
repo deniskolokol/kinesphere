@@ -48,7 +48,6 @@ var confKeys = [ // keys to save to conf file
 var harmonics, numHarmonics=1024, numWavetables = 8;
 
 var opts = ServerOptions.new;
-var scsynth;
 
 var cleanPaths = { |paths|
     // Converts each element from `paths` to absolute path,
@@ -808,8 +807,8 @@ if (isTest) {
     // ORDINARY START
     if ((~scsynth == Server.local).or(~scsynth == Server.internal)) {
         s = ~scsynth; // default server
-        s.options.numInputBusChannels = 4;
-        s.options.numOutputBusChannels = 10; // 8 outputs on the interface + one aux stereo output
+        s.options.numInputBusChannels = 8;
+        s.options.numOutputBusChannels = 12; // 8 outputs on the interface + one aux stereo output
         s.options.memSize = 262144;
         s.options.blockSize = 512;
         s.latency = 0.05;
