@@ -44,7 +44,7 @@ var confKeys = [ // keys to save to conf file
     'surround', 'depth',
     'inbus', 'outbus', 'audioThruBus', 'inbus', 'outbus',
     'receiver', 'speakers'
-];
+];ł
 var harmonics, numHarmonics=1024, numWavetables = 8;
 
 var opts = ServerOptions.new;
