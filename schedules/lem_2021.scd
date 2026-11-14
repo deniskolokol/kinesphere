@@ -1,5 +1,4 @@
 (
-var samplesDir;
 var dictObjSeq, msetObjSeq; // Markov chains creating sequences and obtaining objects' birthtime
 var scales, buf;
 
@@ -17,8 +16,8 @@ dictObjSeq = (
 msetObjSeq = MarkovSetN([], 2);
 dictObjSeq.keysValuesDo{|k, v| msetObjSeq[k] = v[1]};
 
-samplesDir = "~/Music/MOON2/samples/";
-PathName.new(samplesDir +/+ "kraut_traer").entries.do { |f, i|
+// Original location: "~/Music/MOON2/samples/kraut_traer"
+PathName.new("~/Data/Audio/samples/various").entries.do { |f, i|
     try {
         buf = Buffer.readChannel(~scsynth, f.fullPath, channels: [0]);
         ~reportBufLoad.(buf);
@@ -27,7 +26,11 @@ PathName.new(samplesDir +/+ "kraut_traer").entries.do { |f, i|
         postf("ERROR: %\n", err);
     };
 };
-PathName.new(samplesDir +/+ "voices").entries.do { |f, i|
+// Original location: "~/Music/MOON2/samples/voices"
+PathName.new("~/Data/Audio/voices/Agata").entries.do { |f, i|
+    try { ~sequence.voices.add(Buffer.readChannel(~scsynth, f.fullPath, channels: [0])) }
+};
+PathName.new("~/Data/Audio/voices/Marcin").entries.do { |f, i|
     try { ~sequence.voices.add(Buffer.readChannel(~scsynth, f.fullPath, channels: [0])) }
 };
 scales = [
