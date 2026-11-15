@@ -155,7 +155,7 @@ try { // to load from settings file
 ~worldSize = (Window.screenBounds.height*0.623).floor;
 
 ~surround = conf.atFail(\surround, {"ambisonic"});
-~depth = conf.atFail(\fieldDepth, {3.5});
+~depth = conf.atFail(\depth, {3.5});
 ~inbus = conf.atFail(\inbus, {4});
 ~outbus = conf.atFail(\outbus, {0});
 ~audioThruBus = conf.atFail(\audioThruBus, {[10, 11]}); // two buses for audio through on skeletons hands

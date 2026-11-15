@@ -453,7 +453,7 @@ worldParams.keysValuesDo { |k, v| world[k] = v[\default]};
 skel = ~skel;
 skeleton = Dictionary.new;
 jointVisible = [ // visualize only these joints
-    \l_hand, \l_elbow, \l_shoulder, \head, \r_shoulder, \r_elbow, \r_hand
+    \l_hand, \l_elbow, \l_shoulder, \neck, \r_shoulder, \r_elbow, \r_hand
 ];
 springSrcSkel = #[\r_hand, \l_hand]; // joints that springs can be attached to
 listenerPos = ( // as default - center of the world
@@ -1686,6 +1686,15 @@ drawCalibration = { |view, kwargs|
                     sk[jointVisible[j+1]].position.y));
                 Pen.width = sk[jointVisible[j+1]].position.z.linlin(0, world.depth, 3, 20);
                 Pen.stroke;
+
+                // The \neck is used instead of the \head due to the head displacement in the top view.
+                if (jointVisible[j] == \neck) {
+                    Pen.addOval(Rect.aboutPoint(
+                        Point(sk[jointVisible[j]].position.x, sk[jointVisible[j]].position.y),
+                        12, 18
+                    ));
+                    Pen.stroke;
+                }
             }
         };
     };
@@ -2942,7 +2951,7 @@ oscSkeletonJoint = OSCFunc({ |msg, time, addr, recvPort|
 	#x, y, z = [
 		msg[3].linlin(0.0, 1.0, 0, world.width),
 		msg[4].linlin(0.0, 1.0, 0, world.height),
-		msg[5].linlin(0.65, 2.8, 0, world.depth)
+		msg[5].linlin(0.0, 2.2, 0, world.depth)
 	];
 
     skeletonParticles.(id: msg[2].asInteger, joint: msg[1], x: x, y: y, z: z);
