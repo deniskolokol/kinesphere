@@ -1387,12 +1387,7 @@ guiSynthCtrls = { |panel, synthType|
     // knobs
     6.do({ |j|
         ctrls[j] = EZKnob(pan,
-            Rect(
-                (j/3).trunc*30+10,
-                stSynth.bounds.height+(j%3*90)+30,
-                stripeWidth*0.45,
-                stripeWidth*0.6
-            ),
+            ((stripeWidth*0.45).clip(40, 100))@((stripeWidth*0.6).clip(50, 120)),
             ~defaultParams[synthType][j],
             ~specs.at(~defaultParams[synthType][j]),
             { |ez| ccCurrSynthParam.(synthType, j, ez.value)},
@@ -1409,18 +1404,14 @@ guiSynthCtrls = { |panel, synthType|
         );
         ctrls[j].knobView.canFocus = false;
         ctrls[j].numberView.canFocus = false;
-
     });
     // sliders
     2.do { |j|
-        sText.(pan, "", scaleW:0.15, scaleH: 0.35);
-        ctrls[j+6] = EZSlider(pan,
-            Rect(
-                j%2*60+10,
-                (pan.bounds.height*0.55).trunc,
-                stripeWidth*0.3,
-                pan.bounds.height*0.4
-            ),
+        var panSl = compViewFlow.(pan, scaleW:0.48, scaleH:0.6);
+        // sText is for the gap from the left border of the panel to the slider
+        sText.(panSl, " ", scaleW:0.4, scaleH: 0.35);
+        ctrls[j+6] = EZSlider(panSl,
+            (panSl.bounds.width*0.3)@(panSl.bounds.height*0.8),
             ~defaultParams[synthType][j+6],
             ~specs.at(~defaultParams[synthType][j+6]),
             { |ez| ccCurrSynthParam.(synthType, j+6, ez.value)},
@@ -1441,7 +1432,7 @@ guiSynthCtrls = { |panel, synthType|
     // return gui elements themselves
     [stSynth, ctrls]
 };
-panel = compViewFlow.(viewRight, scaleW: 0.635, scaleH: tmp);
+panel = compViewFlow.(viewRight, scaleW: 0.6, scaleH: tmp);
 #labelAr, guiAr = guiSynthCtrls.(panel, \ar);
 #labelKr, guiKr = guiSynthCtrls.(panel, \kr);
 
