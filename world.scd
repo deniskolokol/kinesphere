@@ -1922,7 +1922,8 @@ drawSkel = { |view|
     skeleton.values.do { |skel|
 
         drawSkelJoints.(skel, currPath);
-        drawSkelParticle.();
+        // Generally we do not need to draw particles in this mode.
+        // drawSkelParticle.();
 
         // // WARNING! Technically this is a wrong approach,
         // // since it will draw particles two times.
@@ -1969,7 +1970,7 @@ drawSkelJoints = { |skel, currPath|
         path.do { |joint, j|
             if (j < (path.size-1)) {
                 lineColor = Color.grey(
-                    skel[joint].position.y.linlin(0, world.depth, 1, 0)
+                    skel[joint].position.z.linlin(0, world.depth, 1, 0)
                 );
                 deviation = skel[joint].position.y.lincurve(0, world.depth, 1, 20, -4);
                 xyA = getPointPlane.(skel[joint]);
@@ -2686,13 +2687,14 @@ xyz2plane = { arg pos, space, scale=1, focal=0.5;
 };
 
 
-// Standard plane poiint in the ~world.
+// Standard plane point in the ~world.
+// Reverses Y axis to match the canvas coordinates.
 getPointPlane = { |obj|
     xyz2plane.(
         (
             x: obj.position.x.round(gridUnit),
-            y: obj.position.z.round(gridUnit),
-            z: obj.position.y
+            y: (world.height - obj.position.y).round(gridUnit),
+            z: obj.position.z
         ),
         world,
         scale:scaleDepth,
@@ -2926,12 +2928,13 @@ oscSkeletonNew = OSCFunc({ |msg, time, addr, recvPort|
     skeletonParticles.(msg[1]);
 }, '/new_skel');
 
+
 oscSkeletonJoint = OSCFunc({ |msg, time, addr, recvPort|
     var x, y, z;
 	// front view
     // #x, y, z = [
     //     msg[3].linlin(0.0, 1.0, 0, world.width),
-    //     msg[5].linlin(-1.0, 1.0, 0, world.height),
+    //     msg[5].linlin(1.0, -1.0, 0, world.height),
     //     msg[4].linlin(0.0, 1.0, 0, world.depth)
     // ];
 
@@ -2944,6 +2947,7 @@ oscSkeletonJoint = OSCFunc({ |msg, time, addr, recvPort|
 
     skeletonParticles.(id: msg[2].asInteger, joint: msg[1], x: x, y: y, z: z);
 }, '/joint');
+
 
 oscGroupTree = OSCFunc({ |msg, time, addr, recvPort|
     // Parses /g_queryTree.reply:

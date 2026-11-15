@@ -640,10 +640,11 @@ scales.do { |c, i|
             ),
             particle: (age: inf, mass: 1, spring: 1, source: \l_hand)
         ),
-        (
-            info: "Skel mode, stop <buzz> stream 2, remove <melo>",
-            message: \action,  params: [\draw, \skelfull]
-        ),
+        // WARNING: uncomment for performance!
+        // (
+        //     info: "Skel mode, stop <buzz> stream 2, remove <melo>",
+        //     message: \action,  params: [\draw, \skelfull]
+        // ),
         (
             message: \action,  params: [\remove, 1180]
         ),
