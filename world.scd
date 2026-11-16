@@ -54,6 +54,7 @@ var transparent=Color.grey(alpha:0.01),
     fontLarge=Font("Nimbus Mono PS", 14),
     fontLarge1=Font("Nimbus Mono PS", 18),
     fontGiant=Font("Nimbus Mono PS", 24),
+    fontMonoLog = Font("Menlo", 12),
     fontColor=Color.gray(0.7),
     colorStar=Color.red,
     colorJoint=Color.new255(173, 58, 0),
@@ -1115,17 +1116,25 @@ sText.(panel, " ", stringFont:fontSmall, scaleH:0.5, scaleW:0.05); // gap
 
 
 // GUI: local post window
-panel = compViewFlow.(viewBottom);
-postView = TextView(panel, panel.bounds.width@panel.bounds.height)
-    .editable_(false)
-    .font_(fontMedium)
-    .stringColor_(fontColor)
+postView = TextView(
+    viewWorld,
+    Rect(
+        viewWorld.bounds.width*0.7,
+        viewWorld.bounds.height*0.55,
+        viewWorld.bounds.width*0.3,
+        viewWorld.bounds.height*0.42
+        )
+    ).editable_(false)
+    .font_(fontMonoLog)
     .background_(transparent)
     .hasVerticalScroller_(false)
+    .hasHorizontalScroller_(false)
     .canFocus_(false);
+// Remove the border around the TextView to make it look cleaner.
+postView.setProperty(\frameShape, 0);
 
 // GUI: running synths and connections
-viewConn = UserView(viewRight, viewRight.bounds.width@(viewWorld.bounds.height*0.85));
+viewConn = UserView(viewRight, viewRight.bounds.width@(viewWorld.bounds.height*0.5));
 viewConn.drawFunc = { |view|
     var ind, unit, grid=6, gridMargin=60;
     // synths width depending on the synth type
@@ -2765,8 +2774,7 @@ postMsg = { |msg|
     { line.beginsWith("ERROR") } { Color.new255(158, 33, 33) }
     { fontColor };
 
-    {
-        // do not grow too long
+    { // prevent from growing too long
         if (postView.string.size > logMaxSize) {
             start = postView.string.size - logMaxSize;
             postView.string = postView.string[start..];
