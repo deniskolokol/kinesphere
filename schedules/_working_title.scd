@@ -49,11 +49,52 @@ dictObjSeq.keysValuesDo{|k, v| msetObjSeq[k] = v[1]};
                 \repulsion, 10,
                 \maxVel, 150,
                 \starMass, \default,
+                \particleSystem, \default,
                 \springRestLen, 3,
                 \springStrength, 0.5,
                 \springDamp, 2,
                 \mutualAttraction, \default,
             ]
+        ),
+    ],
+    5: [
+        (
+            wait: 120,
+            info: "INTRO, no objects, only .kr buses",
+            message: \g_new,
+            id: \intro_bundle,
+            params: [ // Keywords \next_node_id & \group_id are to be substituted by real IDs.
+                ["/s_new", "humm__" ++ ~spatial.(), \next_node_id, 0, \group_id, // add synth to new group's head
+                    \momentum, 0.5,
+                    \attack, 40,
+                    \bufnum, ~sequence.scales[4].bufnum,
+                    \depth, ~depth,
+                    \out, ~outbus
+                ],
+                ["/s_new", \klfno1, \next_node_id, 0, \group_id, \lfo, 0.2, \mul, 1pi, \out, 0],
+                ["/n_map", \group_id, \azimuth, 0],
+                ["/s_new", \kstepno, \next_node_id, 0, \group_id, \lfo, 0.08, \mul, 0.3, \add, 0.7, \out, 1],
+                ["/n_map", \group_id, \distance, 1],
+                ["/s_new", \klfno1, \next_node_id, 0, \group_id, \lfo, 0.1, \mul, 0.25, \add, 0.5, \out, 2],
+                ["/n_map", \group_id, \momentum, 2],
+                ["/s_new", \klfno1, \next_node_id, 0, \group_id, \lfo, 0.01, \mul, 0.1, \add, 0.1, \out, 3],
+                ["/n_map", \group_id, \az, 3]
+            ]
+        )
+    ],
+    7: [
+        (
+            info: "INTRO: particleSystem",
+            message: \physics, params: [\particleSystem, 1, \maxVel, 2]
+        ),
+        (
+            info: "Silent object",
+            message: \particle,
+            synth: (name: "silent"),
+            particle: (mass: 1, x: 470, y: 300, z: 250)
+        ),
+        (
+            message: \task, name: \randomParticles, act: 1
         ),
     ],
     10: [
@@ -85,6 +126,44 @@ dictObjSeq.keysValuesDo{|k, v| msetObjSeq[k] = v[1]};
         (
             info: "TASK: `magma`",
             message: \task, name: \magma, act: 1
+        ),
+    ],
+    25: [
+        (
+            info: "switch OFF particles & tasks",
+            message: \physics, params: [particleSystem: 0]
+        ),
+        (
+            message: \task, name: \startLoop, act: 0
+        ),
+        (
+            message: \task, name: \magma, act: 0
+        ),
+
+    ],
+    30: [
+        (
+            info: "Physics environment change, 2 heavy <moog>",
+            message: \physics,
+            params: [\drag, 0.5, \repulsion, 10, \maxVel, 150]
+        ),
+        // Start 2 heavy <moog> w/default cutoff and long attack
+        (
+            info: "2 heavy <moog>",
+            message: \particle,
+            synth: (
+                name: "moog",
+                params: [\bufnum, ~sequence.scales[0].bufnum, \attack, 2 + 1.0.rand2, \release, 5, \threshold, 0.5]
+            ),
+            particle: (mass: 1, spring: 1, source: \r_hand)
+        ),
+        (
+            message: \particle,
+            synth: (
+                name: "moog",
+                params: [\bufnum, ~sequence.scales[0].bufnum, \attack, 2 + 1.0.rand2, \release, 5, \threshold, 0.5]
+            ),
+            particle: (mass: 1, spring: 1, source: \l_hand)
         ),
     ],
     99: [

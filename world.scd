@@ -436,6 +436,7 @@ var skelSimul = Task({
 			inc = 1;
 		};
         coords = skelData[i][1..];
+        coords[1] = 1 - coords[1]; // invert y-axis
         ~sendMessage.('/joint', [skelData[i][0], 1] ++ coords);
         i = i + inc;
         world.skelSimulSpeed.wait;
@@ -452,7 +453,7 @@ worldParams.keysValuesDo { |k, v| world[k] = v[\default]};
 skel = ~skel;
 skeleton = Dictionary.new;
 jointVisible = [ // visualize only these joints
-    \l_hand, \l_elbow, \l_shoulder, \head, \r_shoulder, \r_elbow, \r_hand
+    \l_hand, \l_elbow, \l_shoulder, \neck, \r_shoulder, \r_elbow, \r_hand
 ];
 springSrcSkel = #[\r_hand, \l_hand]; // joints that springs can be attached to
 listenerPos = ( // as default - center of the world
@@ -1386,12 +1387,7 @@ guiSynthCtrls = { |panel, synthType|
     // knobs
     6.do({ |j|
         ctrls[j] = EZKnob(pan,
-            Rect(
-                (j/3).trunc*30+10,
-                stSynth.bounds.height+(j%3*90)+30,
-                stripeWidth*0.45,
-                stripeWidth*0.6
-            ),
+            ((stripeWidth*0.45).clip(40, 100))@((stripeWidth*0.6).clip(50, 120)),
             ~defaultParams[synthType][j],
             ~specs.at(~defaultParams[synthType][j]),
             { |ez| ccCurrSynthParam.(synthType, j, ez.value)},
@@ -1408,18 +1404,14 @@ guiSynthCtrls = { |panel, synthType|
         );
         ctrls[j].knobView.canFocus = false;
         ctrls[j].numberView.canFocus = false;
-
     });
     // sliders
     2.do { |j|
-        sText.(pan, "", scaleW:0.15, scaleH: 0.35);
-        ctrls[j+6] = EZSlider(pan,
-            Rect(
-                j%2*60+10,
-                (pan.bounds.height*0.55).trunc,
-                stripeWidth*0.3,
-                pan.bounds.height*0.4
-            ),
+        var panSl = compViewFlow.(pan, scaleW:0.48, scaleH:0.6);
+        // sText is for the gap from the left border of the panel to the slider
+        sText.(panSl, " ", scaleW:0.4, scaleH: 0.35);
+        ctrls[j+6] = EZSlider(panSl,
+            (panSl.bounds.width*0.3)@(panSl.bounds.height*0.8),
             ~defaultParams[synthType][j+6],
             ~specs.at(~defaultParams[synthType][j+6]),
             { |ez| ccCurrSynthParam.(synthType, j+6, ez.value)},
@@ -1440,7 +1432,7 @@ guiSynthCtrls = { |panel, synthType|
     // return gui elements themselves
     [stSynth, ctrls]
 };
-panel = compViewFlow.(viewRight, scaleW: 0.635, scaleH: tmp);
+panel = compViewFlow.(viewRight, scaleW: 0.6, scaleH: tmp);
 #labelAr, guiAr = guiSynthCtrls.(panel, \ar);
 #labelKr, guiKr = guiSynthCtrls.(panel, \kr);
 
@@ -1685,6 +1677,15 @@ drawCalibration = { |view, kwargs|
                     sk[jointVisible[j+1]].position.y));
                 Pen.width = sk[jointVisible[j+1]].position.z.linlin(0, world.depth, 3, 20);
                 Pen.stroke;
+
+                // The \neck is used instead of the \head due to the head displacement in the top view.
+                if (jointVisible[j] == \neck) {
+                    Pen.addOval(Rect.aboutPoint(
+                        Point(sk[jointVisible[j]].position.x, sk[jointVisible[j]].position.y),
+                        12, 18
+                    ));
+                    Pen.stroke;
+                }
             }
         };
     };
@@ -1919,16 +1920,21 @@ drawSkel = { |view|
 
     // draw skeletons
     skeleton.values.do { |skel|
-        // WARNING! Technically this is a wrong approach,
-        // since it will draw particles two times.
-        // but it doesn't matter, because only one skel is used.
-        if (skel[\head].position.y > star.position.y) {
-            drawSkelParticle.();
-            drawSkelJoints.(skel, currPath);
-        } {
-            drawSkelJoints.(skel, currPath);
-            drawSkelParticle.();
-        };
+
+        drawSkelJoints.(skel, currPath);
+        // Generally we do not need to draw particles in this mode.
+        // drawSkelParticle.();
+
+        // // WARNING! Technically this is a wrong approach,
+        // // since it will draw particles two times.
+        // // but it doesn't matter, because only one skel is used.
+        // if (skel[\head].position.y > star.position.y) {
+        //     drawSkelParticle.();
+        //     drawSkelJoints.(skel, currPath);
+        // } {
+        //     drawSkelJoints.(skel, currPath);
+        //     drawSkelParticle.();
+        // };
     };
     // draw grid
     Pen.strokeColor = Color.grey(0.3);
@@ -1961,13 +1967,13 @@ drawSkel = { |view|
 // A frame of movement of a skeleton in the drawSkel mode.
 drawSkelJoints = { |skel, currPath|
     currPath.do { |path|
-        path.do { |jo, j|
+        path.do { |joint, j|
             if (j < (path.size-1)) {
                 lineColor = Color.grey(
-                    skel[jo].position.y.linlin(0, world.depth, 1, 0)
+                    skel[joint].position.z.linlin(0, world.depth, 1, 0)
                 );
-                deviation = skel[jo].position.y.lincurve(0, world.depth, 1, 20, -4);
-                xyA = getPointPlane.(skel[jo]);
+                deviation = skel[joint].position.y.lincurve(0, world.depth, 1, 20, -4);
+                xyA = getPointPlane.(skel[joint]);
                 xyB = getPointPlane.(skel[path[j+1]]);
                 drawLine.(
                     pointA:(x:xyA[0], y:xyA[1]),
@@ -1986,7 +1992,7 @@ drawSkelJoints = { |skel, currPath|
                     );
                     drawLine.(xyDevA, xyDevB, lineColor);
                     // additional lines for the head
-                    if (jo == \head) {
+                    if (joint == \head) {
                         xyDevA = (
                             x: randomize.(xyA[0]-gridUnit, deviation),
                             y: randomize.(xyA[1]+gridUnit, deviation)
@@ -2681,13 +2687,14 @@ xyz2plane = { arg pos, space, scale=1, focal=0.5;
 };
 
 
-// Standard plane poiint in the ~world.
+// Standard plane point in the ~world.
+// Reverses Y axis to match the canvas coordinates.
 getPointPlane = { |obj|
     xyz2plane.(
         (
             x: obj.position.x.round(gridUnit),
-            y: obj.position.z.round(gridUnit),
-            z: obj.position.y
+            y: (world.height - obj.position.y).round(gridUnit),
+            z: obj.position.z
         ),
         world,
         scale:scaleDepth,
@@ -2921,26 +2928,26 @@ oscSkeletonNew = OSCFunc({ |msg, time, addr, recvPort|
     skeletonParticles.(msg[1]);
 }, '/new_skel');
 
+
 oscSkeletonJoint = OSCFunc({ |msg, time, addr, recvPort|
-	// postf("from % received %\n", addr, msg);
+    var x, y, z;
+	// front view
+    // #x, y, z = [
+    //     msg[3].linlin(0.0, 1.0, 0, world.width),
+    //     msg[5].linlin(1.0, -1.0, 0, world.height),
+    //     msg[4].linlin(0.0, 1.0, 0, world.depth)
+    // ];
 
-	// // XXX front view
-	// #x, y, z = [
-	// 	msg[3].linlin(0.0, 1.0, 0, world.width),
-	// 	msg[4].linlin(0.0, 1.0, 0, world.height),
-	// 	msg[5].linlin(0.65, 2.8, 0, world.depth)
-	// ];
+	// top view
+	#x, y, z = [
+		msg[3].linlin(0.0, 1.0, 0, world.width),
+		msg[4].linlin(0.0, 1.0, 0, world.height),
+		msg[5].linlin(0.0, 2.2, 0, world.depth)
+	];
 
-	// XXX top view
-	// x:msg[3].linlin(0.0, 1.0, 0, world.width),
-    skeletonParticles.(
-		id:msg[2].asInteger,
-		joint:msg[1],
-		x:msg[3].linlin(0.0, 1.0, 0, world.width),
-		y:msg[5].linlin(-1.0, 1.0, 0, world.height),
-		z:msg[4].linlin(0.0, 1.0, 0, world.depth)
-	);
+    skeletonParticles.(id: msg[2].asInteger, joint: msg[1], x: x, y: y, z: z);
 }, '/joint');
+
 
 oscGroupTree = OSCFunc({ |msg, time, addr, recvPort|
     // Parses /g_queryTree.reply:

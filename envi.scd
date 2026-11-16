@@ -44,11 +44,10 @@ var confKeys = [ // keys to save to conf file
     'surround', 'depth',
     'inbus', 'outbus', 'audioThruBus', 'inbus', 'outbus',
     'receiver', 'speakers'
-];
+];ł
 var harmonics, numHarmonics=1024, numWavetables = 8;
 
 var opts = ServerOptions.new;
-var scsynth;
 
 var cleanPaths = { |paths|
     // Converts each element from `paths` to absolute path,
@@ -156,7 +155,7 @@ try { // to load from settings file
 ~worldSize = (Window.screenBounds.height*0.623).floor;
 
 ~surround = conf.atFail(\surround, {"ambisonic"});
-~depth = conf.atFail(\fieldDepth, {3.5});
+~depth = conf.atFail(\depth, {3.5});
 ~inbus = conf.atFail(\inbus, {4});
 ~outbus = conf.atFail(\outbus, {0});
 ~audioThruBus = conf.atFail(\audioThruBus, {[10, 11]}); // two buses for audio through on skeletons hands
@@ -808,8 +807,8 @@ if (isTest) {
     // ORDINARY START
     if ((~scsynth == Server.local).or(~scsynth == Server.internal)) {
         s = ~scsynth; // default server
-        s.options.numInputBusChannels = 4;
-        s.options.numOutputBusChannels = 10; // 8 outputs on the interface + one aux stereo output
+        s.options.numInputBusChannels = 8;
+        s.options.numOutputBusChannels = 12; // 8 outputs on the interface + one aux stereo output
         s.options.memSize = 262144;
         s.options.blockSize = 512;
         s.latency = 0.05;
