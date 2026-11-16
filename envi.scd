@@ -152,7 +152,7 @@ try { // to load from settings file
 ~seqPaths = ~seqPaths.asList;
 
 // assume the World is a cube
-~worldSize = (Window.screenBounds.height*0.623).floor;
+~worldSize = Window.screenBounds.height*0.95;
 
 ~surround = conf.atFail(\surround, {"ambisonic"});
 ~depth = conf.atFail(\depth, {3.5});

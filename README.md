@@ -48,6 +48,9 @@ Legacy version requires:
 2. In SuperCollider, open `envi.scd` and evaluate the whole file (on macOS,
    select all and press **Cmd+Return**).
 3. Wait for the server to boot and the world window to appear.
+
+![World window](img/main_gui.png)
+
 4. Start BodyTrack and point it to the scsynth's IP address and port (see
 [Tracking body with a camera](https://github.com/deniskolokol/bodytrack#tracking-body-with-a-camera))
 5. For legacy version start OSCeleton on Kinesphere's default port to enable tracking:
