@@ -2769,7 +2769,8 @@ xyz = { |position|
 
 // Posts message to local listener.
 postMsg = { |msg|
-    var color, line, rest, postText, overflow, segment, start, logMaxSize=500;
+    var color, line, rest, postText, overflow, segment, start, oldSize;
+    var logMaxSize=800, logTrimThreshold=1000;
 
     msg = msg.asString;
     line = msg.split($\n)[0];
@@ -2779,11 +2780,12 @@ postMsg = { |msg|
     color = case
     { line.beginsWith("INFO") || line.beginsWith("->") } { Color.new255(11, 96, 224) }
     { line.beginsWith("DEBUG") || line.beginsWith("$>") } { Color.new255(55, 157, 0) }
-    { line.beginsWith("WARNING") } { Color.white }
+    { line.beginsWith("WARNING") } { Color.new255(255, 165, 0) }
     { line.beginsWith("ERROR") } { Color.new255(158, 33, 33) }
     { fontColor };
 
     { // prevent from growing too long
+        oldSize = postView.string.size;
         if (line.size > 0) {
             postSegments.add((text: line, color: color));
         };
@@ -2791,25 +2793,35 @@ postMsg = { |msg|
             postSegments.add((text: rest, color: fontColor));
         };
         postText = "".catList(postSegments.collect { |item| item[\text] });
-        overflow = postText.size - logMaxSize;
-        while { (overflow > 0) && (postSegments.size > 0) } {
-            segment = postSegments[0];
-            if (segment[\text].size <= overflow) {
-                overflow = overflow - segment[\text].size;
-                postSegments.removeAt(0);
-            } {
-                segment[\text] = segment[\text][overflow..];
-                overflow = 0;
+        if (postText.size > logTrimThreshold) {
+            overflow = postText.size - logMaxSize;
+            while { (overflow > 0) && (postSegments.size > 0) } {
+                segment = postSegments[0];
+                if (segment[\text].size <= overflow) {
+                    overflow = overflow - segment[\text].size;
+                    postSegments.removeAt(0);
+                } {
+                    segment[\text] = segment[\text][overflow..];
+                    overflow = 0;
+                };
+            };
+            postText = "".catList(postSegments.collect { |item| item[\text] });
+            postView.string = postText;
+            start = 0;
+            postSegments.do { |item|
+                postView.setStringColor(item[\color], start, item[\text].size);
+                start = start + item[\text].size;
+            };
+        } {
+            postView.setString(msg, oldSize, 0);
+            if (line.size > 0) {
+                postView.setStringColor(color, oldSize, line.size);
+            };
+            if (rest.size > 0) {
+                postView.setStringColor(fontColor, oldSize+line.size, rest.size);
             };
         };
-        postText = "".catList(postSegments.collect { |item| item[\text] });
-        postView.string = postText;
-        start = 0;
-        postSegments.do { |item|
-            postView.setStringColor(item[\color], start, item[\text].size);
-            start = start + item[\text].size;
-        };
-        postView.select(postView.string.size, 1); // autoscroll
+        postView.select(postView.string.size, 0);
     }.defer;
 };
 
