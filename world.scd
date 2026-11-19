@@ -40,7 +40,7 @@ var scale, translate, focal;
 var paramsChanged;
 var cleanExit;
 var fileNames;
-var postView, postMsg, postColors=List.new;
+var postView, postMsg, postSegments=List.new;
 var eventInfo, switchEvent, processEvents, getKey;
 var groupNew, groupRemove, sendSNew, sendNSet, taskPlay;
 var animateSeq, shade, current, next, count=0, blinked=0, tick=0;
@@ -2769,18 +2769,12 @@ xyz = { |position|
 
 // Posts message to local listener.
 postMsg = { |msg|
-    var start, color, line, logMaxSize=500;
-    // Updates post colors when postView size shrinks.
-    var updatePostColors = { |colors, start|
-        colors.size.do { |i|
-            colors[i][\start] = colors[i][\start] - start
-        };
-        all {: k, k <-colors, k[\start] > 0 };
-    };
+    var color, line, rest, postText, overflow, segment, start, logMaxSize=500;
 
     msg = msg.asString;
     line = msg.split($\n)[0];
     if (msg.endsWith("\n").not) { msg = msg ++ "\n" };
+    rest = if (msg.size > line.size) { msg[line.size..] } { "" };
 
     color = case
     { line.beginsWith("INFO") || line.beginsWith("->") } { Color.new255(11, 96, 224) }
@@ -2790,16 +2784,30 @@ postMsg = { |msg|
     { fontColor };
 
     { // prevent from growing too long
-        if (postView.string.size > logMaxSize) {
-            start = postView.string.size - logMaxSize;
-            postView.string = postView.string[start..];
-            postColors = updatePostColors.(postColors, start);
+        if (line.size > 0) {
+            postSegments.add((text: line, color: color));
         };
-        postColors.add((start: postView.string.size, num: line.size, color: color));
-        postColors.add((start: postView.string.size+line.size, num: msg.size-line.size, color: fontColor));
-        postView.string = postView.string ++ msg;
-        postColors.do { |c|
-            postView.setStringColor(c[\color], c[\start], c[\num]);
+        if (rest.size > 0) {
+            postSegments.add((text: rest, color: fontColor));
+        };
+        postText = "".catList(postSegments.collect { |item| item[\text] });
+        overflow = postText.size - logMaxSize;
+        while { (overflow > 0) && (postSegments.size > 0) } {
+            segment = postSegments[0];
+            if (segment[\text].size <= overflow) {
+                overflow = overflow - segment[\text].size;
+                postSegments.removeAt(0);
+            } {
+                segment[\text] = segment[\text][overflow..];
+                overflow = 0;
+            };
+        };
+        postText = "".catList(postSegments.collect { |item| item[\text] });
+        postView.string = postText;
+        start = 0;
+        postSegments.do { |item|
+            postView.setStringColor(item[\color], start, item[\text].size);
+            start = start + item[\text].size;
         };
         postView.select(postView.string.size, 1); // autoscroll
     }.defer;
