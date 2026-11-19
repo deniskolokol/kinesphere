@@ -54,7 +54,7 @@ var transparent=Color.grey(alpha:0.01),
     fontLarge=Font("Nimbus Mono PS", 14),
     fontLarge1=Font("Nimbus Mono PS", 18),
     fontGiant=Font("Nimbus Mono PS", 24),
-    fontMonoLog = Font("Menlo", 12),
+    fontMonoLog = Font("Andale Mono", 12),
     fontColor=Color.gray(0.7),
     colorStar=Color.red,
     colorJoint=Color.new255(173, 58, 0),
@@ -477,11 +477,14 @@ miscParams = Dictionary.new;
 // Updates value of a GUI element.
 // If `action` is true, .valueAction is performed otherwise .value.
 updateGuiElement = { |parm, val, action=false|
-    if (worldParams[parm].keys.includes(\gui)) {
-        if (action) {
-            { worldParams[parm][\gui].valueAction_(val) }.defer
-        } {
-            { worldParams[parm][\gui].value_(val) }.defer
+    var param = worldParams[parm];
+    if (param.notNil) {
+        if (param[\gui].notNil) {
+            if (action) {
+                { param[\gui].valueAction_(val) }.defer
+            } {
+                { param[\gui].value_(val) }.defer
+            }
         }
     }
 };
@@ -1136,7 +1139,7 @@ postView.setProperty(\frameShape, 0);
 // GUI: running synths and connections
 viewConn = UserView(viewRight, viewRight.bounds.width@(viewWorld.bounds.height*0.5));
 viewConn.drawFunc = { |view|
-    var ind, unit, grid=6, gridMargin=60;
+    var ind, unit, gridRows, gridMargin=60, connections=List.new;
     // synths width depending on the synth type
     var wdtKr = if (synthsLFO.size == 0) {view.bounds.width/4} {(view.bounds.width/synthsLFO.size)-5};
     var wdtAr = (view.bounds.width/particles.size)-5 / ~defaultParams[\ar].size / 2;
@@ -1183,9 +1186,9 @@ viewConn.drawFunc = { |view|
         };
         coords
     };
-    var drawConnection = { |synFro, synTo, parmName, wdt, num|
-        //
-        var parmCoords;
+    var drawConnection = { |synFro, synTo, parmName, wdt, num, slot|
+        var parmCoords, gridCellHeight;
+
         // stroke param connector in .ar synth
         Pen.strokeColor = techColor;
         Pen.strokeRect(Rect(
@@ -1193,19 +1196,13 @@ viewConn.drawFunc = { |view|
             synFro[\coords][1]-5,
             wdt, 5));
         // stroke param name box
-        try {
-            parmCoords = synFro[\connCoords][parmName]
-        } { |err|
-            postMsg.(format("%: No coords for %", err, parmName));
-        };
         parmName = parmName.asString;
-        if (parmCoords.isNil) {
-            parmCoords = [
-                synTo[\coords][0] + (wdtKr*0.5) - (parmName.size*5),
-                (view.bounds.height - (gridMargin*2)) / grid * (min(num+1, grid)) + 10,
-                parmName.size*10, 20
-            ]
-        };
+        gridCellHeight = (view.bounds.height - (gridMargin*2)) / gridRows;
+        parmCoords = [
+            synTo[\coords][0] + (synTo[\coords][2]*0.5) - (parmName.size*5),
+            gridMargin + (gridCellHeight*(slot+0.5)) - 10,
+            parmName.size*10, 20
+        ];
         Pen.width = 2;
         Pen.fillColor = Color.black;
         Pen.strokeColor = techColor;
@@ -1236,8 +1233,29 @@ viewConn.drawFunc = { |view|
         ));
         Pen.stroke;
         Pen.width = 1;
-        parmCoords // return connection coordinates for future use
     };
+
+    synthsKr = reshape.(synthsLFO).sortBy('out');
+    synthsAr = reshape.(particles).sortBy('node');
+    synthsAr.do { |sn|
+        unit = particles[sn[\id]];
+        ~synths[unit[\synth].asSymbol][\params].do { |name, num|
+            try {
+                if (unit[\params][name].asString.toLower.beginsWith("c")) {
+                    ind = unit[\params][name].asString.replace("c", "").asInteger;
+                    if (synthsKr[ind].notNil) {
+                        connections.add((
+                            source: unit,
+                            target: synthsKr[ind],
+                            name: name,
+                            num: num
+                        ));
+                    };
+                };
+            };
+        };
+    };
+    gridRows = max(connections.size, 1);
 
     // stroke grid
     Pen.strokeColor = Color.grey(0.2);
@@ -1246,18 +1264,17 @@ viewConn.drawFunc = { |view|
         Pen.moveTo(Point(tmp, gridMargin));
         Pen.lineTo(Point(tmp, view.bounds.height-gridMargin));
     };
-    grid.do { |i|
-        tmp = ((view.bounds.height - (gridMargin * 2)) / grid) * (i + 0.5) + gridMargin;
+    gridRows.do { |i|
+        tmp = ((view.bounds.height - (gridMargin * 2)) / gridRows) * (i + 0.5) + gridMargin;
         Pen.moveTo(Point(20, tmp));
         Pen.lineTo(Point(view.bounds.width-20, tmp));
     };
     Pen.stroke;
 
     // set 'nerd-ish' font to the whole view
-    Pen.font_(Font("Andale Mono")).smoothing_(true);
+    Pen.font_(fontMonoLog).smoothing_(true);
 
     // .kr
-    synthsKr = reshape.(synthsLFO).sortBy('out');
     synthsKr.do { |syn, i|
         syn[\coords] = drawSynth.(
             syn, oX: i, oY: 5,
@@ -1274,7 +1291,6 @@ viewConn.drawFunc = { |view|
     };
 
     // .ar
-    synthsAr = reshape.(particles).sortBy('node');
     synthsAr.do { |sn, i|
         unit = particles[sn[\id]];
         unit[\coords] = drawSynth.(
@@ -1289,18 +1305,17 @@ viewConn.drawFunc = { |view|
                 unit[\coords][0]+((wdtAr*2)*num),
                 unit[\coords][1]-5,
                 wdtAr, 5));
-            try {
-                if (unit[\params][name].asString.toLower.beginsWith("c")) {
-                    ind = unit[\params][name].asString.replace("c", "").asInteger;
-                    if (unit.keys.asArray.includes(\connCoords).not) {
-                        unit[\connCoords] = ( );
-                    };
-                    unit[\connCoords][name] = drawConnection.(
-                        unit, synthsKr[ind], name, wdtAr, num
-                    );
-                }
-            };
         };
+    };
+    connections.do { |connection, slot|
+        drawConnection.(
+            connection[\source],
+            connection[\target],
+            connection[\name],
+            wdtAr,
+            connection[\num],
+            slot
+        );
     };
 };
 viewConn.mouseDownAction = { |view, x, y, modifiers, buttonNumber, clickCount|
